@@ -57,6 +57,8 @@ class ProxyMiddleware(object):
 			"HMQFU126826U5J7D:176550D703FA05E4",
 			"H34C100W441WVO6D:A3CD5352C2863367",
 			"H30W5D0WBHL6301D:782C396260F8755D",
+			"HA3X4W7A5VHY0CCD:11A94D1DE1668809",
+			"H10D264809F81C4D:F128D58B736B5327",
 		]
 		self.proxyAuths = ["Basic " + base64.urlsafe_b64encode(bytes(p, "ascii")).decode("utf8") for p in pl]
 
