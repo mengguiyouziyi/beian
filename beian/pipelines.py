@@ -22,4 +22,4 @@ class MysqlPipeline(object):
 		self.cursor.execute(sql, args=args)
 		self.conn.commit()
 
-		print(item['comp_full_name'] + ' success')
+		print(item['comp_full_name'])
