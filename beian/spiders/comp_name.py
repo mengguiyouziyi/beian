@@ -23,6 +23,7 @@ class BeianInfoSpider(scrapy.Spider):
 		# 		continue
 			beian_id_name = '10022956169995483090～常州众股网络科技有限公司'
 			id_name = beian_id_name.split('~')
+			print(id_name)
 			item = BeianItem()
 			item['comp_id'] = id_name[0]
 			item['comp_full_name'] = id_name[1]
