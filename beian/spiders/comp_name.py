@@ -21,7 +21,7 @@ class BeianInfoSpider(scrapy.Spider):
 		# 			raise CloseSpider('no datas')
 		# 		time.sleep(60)
 		# 		continue
-			beian_id_name = '10022956169995483090～常州众股网络科技有限公司'
+			beian_id_name = '10022956169995483090~常州众股网络科技有限公司'
 			id_name = beian_id_name.split('~')
 			print(id_name)
 			item = BeianItem()
