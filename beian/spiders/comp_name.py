@@ -12,24 +12,22 @@ class BeianInfoSpider(scrapy.Spider):
 	name = 'comp_name'
 
 	def start_requests(self):
-		# x = 0
-		# while True:
-		# 	beian_id_name = rc.rpop('beian_id_name')
-		# 	if not beian_id_name:
-		# 		x += 1
-		# 		if x > 3:
-		# 			raise CloseSpider('no datas')
-		# 		time.sleep(60)
-		# 		continue
-			beian_id_name = '10022956169995483090~常州众股网络科技有限公司'
+		x = 0
+		while True:
+			beian_id_name = rc.rpop('beian_id_name')
+			if not beian_id_name:
+				x += 1
+				if x > 3:
+					raise CloseSpider('no datas')
+				time.sleep(60)
+				continue
+			# beian_id_name = '10022956169995483090~常州众股网络科技有限公司'
 			id_name = beian_id_name.split('~')
-			print(id_name)
 			item = BeianItem()
 			item['comp_id'] = id_name[0]
 			item['comp_full_name'] = id_name[1]
 			url = 'http://www.beianbeian.com/s?keytype=2&q=%s' % item['comp_full_name']
 			yield scrapy.Request(url, meta={'item': item})
-
 
 	def parse(self, response):
 		if '没有符合条件的记录，即未备案' in response.text:
@@ -43,7 +41,6 @@ class BeianInfoSpider(scrapy.Spider):
 		rever_url = 'http://www.beianbeian.com/search-1/%s' % quote(base_lice_key) if base_lice_key else ''
 		if rever_url:
 			yield scrapy.Request(rever_url, callback=self.parse_rever, meta={'item': item})
-
 
 	def parse_rever(self, response):
 		item = response.meta.get('item', '')
@@ -59,7 +56,6 @@ class BeianInfoSpider(scrapy.Spider):
 			item['detai_url'] = detai_url
 			item['is_allow'] = is_allow if is_allow else ''
 			yield scrapy.Request(detai_url, callback=self.parse_detail, meta={'item': item})
-
 
 	def parse_detail(self, response):
 		item = response.meta.get('item', '')
