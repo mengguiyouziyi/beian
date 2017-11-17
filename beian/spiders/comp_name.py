@@ -27,7 +27,7 @@ class BeianInfoSpider(scrapy.Spider):
 			item = BeianItem()
 			item['comp_id'] = id_name[0]
 			item['comp_full_name'] = id_name[1]
-			url = 'http://www.beianbeian.com/s?keytype=2&q=%s' % item['search_domain']
+			url = 'http://www.beianbeian.com/s?keytype=2&q=%s' % item['comp_full_name']
 			yield scrapy.Request(url, meta={'item': item})
 
 
