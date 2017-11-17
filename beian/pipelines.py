@@ -14,8 +14,8 @@ class MysqlPipeline(object):
 		self.cursor = self.conn.cursor()
 
 	def process_item(self, item, spider):
-		sql = """insert into beian_over_name (comp_id, comp_full_name, search_domain, detai_url, is_allow, base_lice_key, check_time, com_name, com_nature, site_name, home_url, principal, domains, lice_key, exam_item) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-		args = (item["comp_id"], item["comp_full_name"], item["search_domain"], item["detai_url"], item["is_allow"],
+		sql = """insert into beian_over_name (comp_id, comp_full_name, detai_url, is_allow, base_lice_key, check_time, com_name, com_nature, site_name, home_url, principal, domains, lice_key, exam_item) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+		args = (item["comp_id"], item["comp_full_name"], item["detai_url"], item["is_allow"],
 		        item["base_lice_key"],
 		        item["check_time"], item["com_name"], item["com_nature"], item["site_name"], item["home_url"],
 		        item["principal"], item["domains"], item["lice_key"], item["exam_item"])
