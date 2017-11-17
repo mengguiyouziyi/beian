@@ -17,7 +17,7 @@ from beian.utility.info import rc, kaifa
 
 def selectFun(start):
 	cursor = kaifa.cursor()
-	sql = """select comp_id, comp_full_name from comp_base_info limit {start}, 500000""".format(start=start)
+	sql = """select comp_id, comp_full_name from company_base_info limit {start}, 500000""".format(start=start)
 	cursor.execute(sql)
 	results = cursor.fetchall()
 	return results
