@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 import re
-from datetime import datetime
 from urllib.parse import urljoin, quote
-
 import scrapy
-
 from beian.items import BeianItem
-from beian.settings import SQL_DATETIME_FORMAT
 
 
 class BeianInfoSpider(scrapy.Spider):
-	name = 'beian_info'
+	name = 'comp_site'
 
 	def __init__(self):
 		with open('beian/result_4g_sichuan_20170208_handled.txt', 'r') as f:
@@ -21,8 +17,7 @@ class BeianInfoSpider(scrapy.Spider):
 		for search_id, search_domain in enumerate(self.search_domains):
 			item = BeianItem()
 			item['search_id'] = search_id
-			search_domain = search_domain.strip()
-			item['search_domain'] = search_domain
+			item['search_domain'] = search_domain.strip()
 			url = 'http://www.beianbeian.com/search/%s' % search_domain
 			yield scrapy.Request(url, meta={'item': item}, dont_filter=True)
 
@@ -73,7 +68,6 @@ class BeianInfoSpider(scrapy.Spider):
 		lice_key = table2.xpath('./tr[4]/td[2]/a/text()').extract_first()
 		exam_item_obj = table2.xpath('./tr[4]/td[4]/text()').extract()
 		exam_item = [exam.strip() for exam in exam_item_obj if exam.strip()] if exam_item_obj else ''
-		crawl_time = datetime.now().strftime(SQL_DATETIME_FORMAT)
 
 		item['base_lice_key'] = base_lice_key if base_lice_key else ''
 		item['check_time'] = check_time if check_time else ''
@@ -88,7 +82,6 @@ class BeianInfoSpider(scrapy.Spider):
 		item['lice_key'] = lice_key if lice_key else ''
 
 		item['exam_item'] = str(exam_item) if exam_item else ''
-		item['crawl_time'] = crawl_time
 
 		yield item
 

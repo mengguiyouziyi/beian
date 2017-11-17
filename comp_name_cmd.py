@@ -4,4 +4,4 @@ import sys
 from scrapy.cmdline import execute
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-execute('scrapy crawl beian_info'.split(' '))
+execute('scrapy crawl comp_name'.split(' '))

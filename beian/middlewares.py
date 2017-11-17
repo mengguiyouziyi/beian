@@ -4,78 +4,76 @@
 #
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
+import os
+import sys
+from os.path import dirname
+
+father_path = dirname(dirname(os.path.abspath(dirname(__file__))))
+base_path = dirname(dirname(os.path.abspath(dirname(__file__))))
+path = dirname(os.path.abspath(dirname(__file__)))
+sys.path.append(path)
+sys.path.append(base_path)
+sys.path.append(father_path)
 
 import base64
 from random import choice
+from scrapy.exceptions import IgnoreRequest, CloseSpider
+from beian.utility.bloomfilter import PyBloomFilter
+from beian.utility.info import rc
 
-# 代理服务器
-proxyServer = "http://proxy.abuyun.com:9020"
 
-# 代理隧道验证信息
-# proxyUser = "H4XGPM790E93518D"
-# proxyPass = "2835A47D56143D62"
+class BloomfilterMiddleware(object):
+	def __init__(self):
+		self.bf = PyBloomFilter(conn=rc, key='BloomFilter_yyb')
 
-# 1
-# proxyUser = "HQ78N3Y82239165D"
-# proxyPass = "AA99073C3271DBFA"
+	def process_request(self, request, spider):
+		url = request.url
+		if self.bf.is_exist(url):
+			raise IgnoreRequest
+		else:
+			self.bf.add(url)
 
-# 2
-# proxyUser = "HP098K11Z863G14D"
-# proxyPass = "2EBC19D19C17D8ED"
-
-# 3
-# proxyUser = "H9SE505130760R6D"
-# proxyPass = "FBBA776C3C72866D"
-
-# 4
-# proxyUser = "H9CF0585O0838O5D"
-# proxyPass = "3E1CA8BB33560FF6"
-
-# 5
-# proxyUser = "H8K84WW7038741GD"
-# proxyPass = "67EC4B76C72A235C"
-
-# 百科的账号
-# 1
-proxyUser = "HFHLW2A7NGN6X47D"
-proxyPass = "49A144B806CFD145"
-
-# 2
-# proxyUser = "H20X28E37Z5R11UD"
-# proxyPass = "61CE0860F50555CB"
-
-# 3
-# proxyUser = "H51N0CWJLZX5981D"
-# proxyPass = "24606F3C6193A99D"
-
-# 4
-# proxyUser = "HL6O95146U41Z61D"
-# proxyPass = "8F2622D2D6A1A73F"
-
-# 5
-# proxyUser = "HI4Z5PI5D1Y44S2D"
-# proxyPass = "5D698C9C15113ACE"
-
-# for Python3
-proxyAuth = "Basic " + base64.urlsafe_b64encode(bytes((proxyUser + ":" + proxyPass), "ascii")).decode("utf8")
+class CloseMiddleware(object):
+	def process_response(self, request, response, spider):
+		if response.status == 402:
+			raise CloseSpider('402 proxy no use')
+		else:
+			return response
 
 
 class ProxyMiddleware(object):
+	def __init__(self):
+		self.proxyServer = "http://proxy.abuyun.com:9020"
+		pl = [
+			"HJ3F19379O94DO9D:D1766F5002A70BC4",
+			"H285292O32R01G0D:1DA6335539C2EB5F",
+			"HD3920957396Y39D:9E33CB0DEAD0A6E7",
+			"HH8W3B5VNSU81V6D:77D96A7DC3F52766",
+			"H334A990UYU4UKLD:628E84E1535E7F42",
+			"H1PAC9C64710O54D:2FBDED6DDC8FD140",
+			"HG6V4272626N007D:C08BB93CF91E2391",
+			"HY5ZDUG5F9F2194D:245205A0461BDE12",
+			"H51144995KA6IC8D:E0F0E2F2B96DED0F",
+			"HMQFU126826U5J7D:176550D703FA05E4",
+			"H34C100W441WVO6D:A3CD5352C2863367",
+			"H30W5D0WBHL6301D:782C396260F8755D",
+		]
+		self.proxyAuths = ["Basic " + base64.urlsafe_b64encode(bytes(p, "ascii")).decode("utf8") for p in pl]
+
 	def process_request(self, request, spider):
-		request.meta["proxy"] = proxyServer
-		request.headers["Proxy-Authorization"] = proxyAuth
+		request.meta["proxy"] = self.proxyServer
+		request.headers["Proxy-Authorization"] = choice(self.proxyAuths)
 
 
 class RetryMiddleware(object):
 	def process_response(self, request, response, spider):
-		if response.status == 429:
-			# print('wrong status: %s, retrying~~' % response.status, request.meta['item']['app_package'])
-			return request.replace(url=request.url)
+		if response.status in [429, 503]:
+			# print('wrong status: %s, retrying~~' % response.status, request.url)
+			retryreq = request.copy()
+			retryreq.dont_filter = True
+			return retryreq
 		else:
 			return response
-
-	def process_exception(self, request, exception, spider):
-		return request.replace(url=request.url)
 
 
 class RotateUserAgentMiddleware(object):
@@ -89,5 +87,4 @@ class RotateUserAgentMiddleware(object):
 		return cls(crawler.settings.get('USER_AGENT_CHOICES', []))
 
 	def process_request(self, request, spider):
-
 		request.headers.setdefault('User-Agent', choice(self.agents))
